@@ -7,7 +7,7 @@ import android.graphics.Paint;
 import android.view.View;
 
 public class DrawPuzzle extends View {
-    Paint paint = new Paint();
+    Paint paint;
 
     public DrawPuzzle(Context context) {
         super(context);
@@ -21,7 +21,7 @@ public class DrawPuzzle extends View {
         int y = getHeight();
         int radius;
         radius = 100;
-        Paint paint = new Paint();
+        paint = new Paint();
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(Color.WHITE);
         canvas.drawPaint(paint);

@@ -68,4 +68,15 @@
         android:layout_height="wrap_content"
         app:barrierDirection="left" />
 
+    <LinearLayout
+        android:id="@+id/rect"
+        android:layout_width="match_parent"
+        android:layout_height="231dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/textView"
+        app:layout_constraintTop_toTopOf="parent">
+    </LinearLayout>
+
 </android.support.constraint.ConstraintLayout>
