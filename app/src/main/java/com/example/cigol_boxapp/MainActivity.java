@@ -23,9 +23,6 @@ import android.graphics.drawable.BitmapDrawable;
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView navigation;
-    private Switch switchButton;
-    private TextView mTextMessage;
-    private TextView mainMessage;
     private LinearLayout paintLayout;
 
     private int layoutWidth = 0;
@@ -37,24 +34,16 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_probe:
-                    mTextMessage.setText(R.string.title_probe);
+                    setTitle("CIGOL - Probe");
                     return true;
                 case R.id.navigation_solve:
-                    mTextMessage.setText(R.string.title_solve);
+                    setTitle("CIGOL - Solve");
                     return true;
                 case R.id.navigation_reference:
-                    mTextMessage.setText(R.string.title_reference);
+                    setTitle("CIGOL - Reference");
                     return true;
             }
             return false;
-        }
-    };
-
-    private CompoundButton.OnCheckedChangeListener testListener
-            = new CompoundButton.OnCheckedChangeListener() {
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            mainMessage.setText("clicked!");
         }
     };
 
@@ -66,9 +55,7 @@ public class MainActivity extends AppCompatActivity {
             layoutHeight = paintLayout.getMeasuredHeight();
             paintLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
 
-            Log.e("testWidth1", String.valueOf(layoutWidth));
-            Log.e("testHeight1", String.valueOf(layoutHeight));
-
+            // draw only once width and height are established
             draw();
         }
     };
@@ -77,20 +64,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setTitle("CIGOL - Probe");
+
         bindViews();
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        switchButton.setOnCheckedChangeListener(testListener);
 
         ViewTreeObserver vto = paintLayout.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(layoutListener);
     }
 
     private void bindViews() {
-        mTextMessage = findViewById(R.id.message);
         navigation = findViewById(R.id.navigation);
-        switchButton = findViewById(R.id.switch1);
-        mainMessage = findViewById(R.id.textView);
         paintLayout = findViewById(R.id.rect);
     }
 
@@ -101,12 +86,16 @@ public class MainActivity extends AppCompatActivity {
         Canvas canvas = new Canvas(bg);
 
         paint.setColor(Color.parseColor("#CD5C5C"));
-        canvas.drawRect(0, 0, 200, 200, paint);
-
-        paint.setColor(Color.WHITE);
-        int x = canvas.getWidth();
-        int y = canvas.getHeight();
-        canvas.drawCircle(x / 2, y / 2, 100, paint);
+        canvas.drawRect(0, 0, 50, 50, paint);
+        canvas.drawRect(canvas.getWidth() - 50, canvas.getHeight() - 100, canvas.getWidth(), canvas.getHeight(), paint);
+        Log.e("canvasWidth", String.valueOf(canvas.getWidth()));
+        Log.e("canvasHeight", String.valueOf(canvas.getHeight()));
+        Log.e("layoutWidth", String.valueOf(layoutWidth));
+        Log.e("layoutHeight", String.valueOf(layoutHeight));
+//        paint.setColor(Color.WHITE);
+//        int x = canvas.getWidth();
+//        int y = canvas.getHeight();
+//        canvas.drawCircle(x / 2, y / 2, 200, paint);
 
         paintLayout.setBackgroundDrawable(new BitmapDrawable(getApplicationContext().getResources(), bg));
 
