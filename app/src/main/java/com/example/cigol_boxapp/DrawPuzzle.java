@@ -23,7 +23,7 @@ public class DrawPuzzle extends View {
         radius = 100;
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.BLACK);
+        paint.setColor(Color.WHITE);
         canvas.drawPaint(paint);
 
         // Use Color.parseColor to define HTML colors
