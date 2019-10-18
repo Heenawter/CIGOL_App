@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">CIGOL_BoxApp</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="app_name">CIGOL</string>
+    <string name="title_probe">Probe</string>
+    <string name="title_solve">Solve</string>
+    <string name="title_reference">Reference</string>
     <string name="hello_world">Hello, World!</string>
 </resources>

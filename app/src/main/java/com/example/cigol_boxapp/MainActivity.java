@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.graphics.Color;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -15,20 +16,21 @@ public class MainActivity extends AppCompatActivity {
     private Switch switchButton;
     private TextView mTextMessage;
     private TextView mainMessage;
+    private DrawPuzzle test;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
+                case R.id.navigation_probe:
+                    mTextMessage.setText(R.string.title_probe);
                     return true;
-                case R.id.navigation_dashboard:
-                    mTextMessage.setText(R.string.title_dashboard);
+                case R.id.navigation_solve:
+                    mTextMessage.setText(R.string.title_solve);
                     return true;
-                case R.id.navigation_notifications:
-                    mTextMessage.setText(R.string.title_notifications);
+                case R.id.navigation_reference:
+                    mTextMessage.setText(R.string.title_reference);
                     return true;
             }
             return false;
@@ -47,12 +49,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        bindViews();
-
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        switchButton.setOnCheckedChangeListener(testListener);
+        test = new DrawPuzzle(this);
+//        setContentView(R.layout.activity_main);
+        setContentView(test);
+//
+//        bindViews();
+//
+//        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+//        switchButton.setOnCheckedChangeListener(testListener);
     }
 
     private void bindViews() {
@@ -60,5 +64,6 @@ public class MainActivity extends AppCompatActivity {
         navigation = findViewById(R.id.navigation);
         switchButton = findViewById(R.id.switch1);
         mainMessage = findViewById(R.id.textView);
+//        test = findViewById(R.id.testDraw);
     }
 }
