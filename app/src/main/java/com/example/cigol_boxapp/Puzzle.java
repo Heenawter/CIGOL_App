@@ -9,6 +9,9 @@ import android.graphics.Paint;
 import android.util.Log;
 
 public class Puzzle {
+    static final int GATE_WIDTH = 100;
+    static final int GATE_HEIGHT = 50;
+
     private int numGates;
     private int numInputs;
     private PuzzleGate puzzle;
@@ -45,38 +48,48 @@ public class Puzzle {
         int height = canvas.getHeight();
         Paint paint = new Paint();
 
+        this.drawGrid(canvas, width, height, this.numInputs, paint);
         this.draw(this.puzzle, canvas, width / 2, 50, paint);
 
         return bg;
     }
 
 
+    private void drawGrid(Canvas canvas, int width, int height, int numInputs, Paint paint) {
+        int gridWidth = width / numInputs;
+        int x = gridWidth;
+        paint.setColor(Color.parseColor("#FFFFFF"));
+        for(int i = 0; i < numInputs; i++) {
+            canvas.drawLine(x, 0, x, height, paint);
+            x = x + gridWidth;
+        }
+    }
+
     private void draw(PuzzleGate head, Canvas canvas, int x, int y, Paint paint) {
         Log.e("coords", String.valueOf(x) + ", " + String.valueOf(y));
         paint.setColor(Color.parseColor("#CD5C5C"));
-        canvas.drawRect(x, y, x + 100, y + 50, paint);
+        canvas.drawRect(x, y, x + GATE_WIDTH, y + GATE_HEIGHT, paint);
         paint.setColor(Color.parseColor("#FFFFFF"));
         paint.setTextSize(30);
-        canvas.drawText(head.getGate(), x + 20, y + 35, paint);
+        canvas.drawText(head.getGate(), x + (GATE_HEIGHT / 4), y + (GATE_HEIGHT / 2), paint);
 
         PuzzleGate rightGate = head.getRightGate();
         if(rightGate != null) {
-            canvas.drawLine(x + 50, y + 50, x + 300, y + 250, paint);
-            this.draw(rightGate, canvas, x + 200, y + 200, paint);
+//            canvas.drawLine(x + (GATE_WIDTH / 2), y + GATE_HEIGHT, x + (GATE_WIDTH * 3), y + (GATE_HEIGHT * 5), paint);
+            this.draw(rightGate, canvas, x + (GATE_WIDTH * 2), y + (GATE_HEIGHT * 4), paint);
         }
 
         PuzzleGate leftGate  = head.getLeftGate();
         if(leftGate != null) {
-            canvas.drawLine(x + 50, y + 50, x - 200, y + 250, paint);
-            this.draw(leftGate, canvas, x - 200, y + 200, paint);
+//            canvas.drawLine(x + (GATE_WIDTH / 2), y + GATE_HEIGHT, x - (GATE_WIDTH * 2), y + (GATE_HEIGHT * 5), paint);
+            this.draw(leftGate, canvas, x - (GATE_WIDTH * 2), y + (GATE_HEIGHT * 4), paint);
         }
     }
 
     private int getHeight(PuzzleGate head) {
         if (head == null)
             return 0;
-        else
-        {
+        else {
             /* compute the depth of each subtree */
             int lDepth = this.getHeight(head.getLeftGate());
             int rDepth = this.getHeight(head.getRightGate());

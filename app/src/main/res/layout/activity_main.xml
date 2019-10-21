@@ -22,7 +22,8 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="52dp">
+        tools:layout_editor_absoluteX="1205dp"
+        tools:layout_editor_absoluteY="0dp">
 
         <LinearLayout
             android:id="@+id/scroll_container"
@@ -32,10 +33,51 @@
 
             <LinearLayout
                 android:id="@+id/rect"
-                android:background="@drawable/custom_border"
                 android:layout_width="match_parent"
                 android:layout_height="500dp"
+                android:background="@drawable/custom_border"
                 android:orientation="vertical"></LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toTopOf="@id/navigation">
+
+                <Switch
+                    android:id="@+id/switch1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:switchMinWidth="10dp"
+                    android:switchPadding="0dp"
+                    android:textOff="0"
+                    android:textOn="1" />
+
+                <Switch
+                    android:id="@+id/switch2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textOff="0"
+                    android:textOn="1" />
+
+                <Switch
+                    android:id="@+id/switch3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textOff="0"
+                    android:textOn="1" />
+
+                <Switch
+                    android:id="@+id/switch4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textOff="0"
+                    android:textOn="1" />
+            </LinearLayout>
 
             <Button
                 android:id="@+id/button"
@@ -46,5 +88,4 @@
                 tools:layout_editor_absoluteY="45dp" />
         </LinearLayout>
     </ScrollView>
-
 </android.support.constraint.ConstraintLayout>
