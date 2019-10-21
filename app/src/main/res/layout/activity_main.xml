@@ -34,12 +34,12 @@
                 android:id="@+id/rect"
                 android:background="@drawable/custom_border"
                 android:layout_width="match_parent"
-                android:layout_height="800dp"
+                android:layout_height="500dp"
                 android:orientation="vertical"></LinearLayout>
 
             <Button
                 android:id="@+id/button"
-                android:layout_width="161dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Button"
                 tools:layout_editor_absoluteX="125dp"
