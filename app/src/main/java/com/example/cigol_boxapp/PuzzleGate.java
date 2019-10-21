@@ -34,16 +34,16 @@ public class PuzzleGate {
         return output;
     }
 
-    public void draw(Canvas canvas, int x, int y, Paint paint) {
-        Log.e("coords", String.valueOf(x) + ", " + String.valueOf(y));
-        canvas.drawRect(x, y, x + 100, y + 50, paint);
-        if(this.rightGate != null) {
-            this.rightGate.draw(canvas, x + 75, y + 100, paint);
+    public String getGate() {
+        String gate = "";
+        if(this.gate == AND) {
+            gate = "AND";
+        } else if (this.gate == OR) {
+            gate = "OR";
+        } else if (this.gate == XOR) {
+            gate = "XOR";
         }
-
-        if(this.leftGate != null) {
-            this.leftGate.draw(canvas, x - 75, y + 100, paint);
-        }
+        return gate;
     }
 
     public void addLeftGate(PuzzleGate gate) {
@@ -60,22 +60,5 @@ public class PuzzleGate {
 
     public PuzzleGate getRightGate() {
         return this.rightGate;
-    }
-
-
-    private StringBuilder toString(StringBuilder prefix, boolean isTail, StringBuilder sb) {
-        if(this.rightGate != null) {
-            this.rightGate.toString(new StringBuilder().append(prefix).append(isTail ? "│   " : "    "), false, sb);
-        }
-        sb.append(prefix).append(isTail ? "└── " : "┌── ").append(String.valueOf(this.gate)).append("\n");
-        if(this.leftGate !=null) {
-            this.leftGate.toString(new StringBuilder().append(prefix).append(isTail ? "    " : "│   "), true, sb);
-        }
-        return sb;
-    }
-
-    @Override
-    public String toString() {
-        return this.toString(new StringBuilder(), true, new StringBuilder()).toString();
     }
 }

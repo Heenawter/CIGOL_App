@@ -82,10 +82,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void draw() {
-        Bitmap bg = Bitmap.createBitmap(layoutWidth, layoutHeight, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bg);
-
-        this.puzzle.draw(canvas);
+        Bitmap bg = this.puzzle.draw(this.layoutHeight, this.layoutWidth);
 
         paintLayout.setBackgroundDrawable(new BitmapDrawable(getApplicationContext().getResources(), bg));
 
