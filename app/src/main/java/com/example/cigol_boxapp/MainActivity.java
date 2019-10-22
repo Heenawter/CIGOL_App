@@ -1,7 +1,5 @@
 package com.example.cigol_boxapp;
 
-import android.util.Log;
-
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -11,9 +9,6 @@ import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 
 public class MainActivity extends AppCompatActivity {
@@ -60,15 +55,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_v2);
+        setContentView(R.layout.activity_main);
         setTitle("CIGOL - Probe");
 
         bindViews();
         this.puzzle = new Puzzle(4);
-
-//        for(int i = 0; i < 10; i++) {
-//            test = new Puzzle(4);
-//        }
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 

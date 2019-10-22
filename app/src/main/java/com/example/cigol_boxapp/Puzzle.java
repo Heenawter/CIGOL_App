@@ -1,5 +1,7 @@
 package com.example.cigol_boxapp;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import android.graphics.Bitmap;
@@ -10,12 +12,14 @@ import android.util.Log;
 
 public class Puzzle {
     static final int GATE_WIDTH = 100;
-    static final int GATE_HEIGHT = 50;
+    static final int GATE_HEIGHT = 100;
 
     private int numGates;
     private int numInputs;
     private PuzzleGate puzzle;
     private int height;
+    private int leftNodeWeight;
+    private int rightNodeWeight;
 
     public Puzzle(int numGates) {
         this.numGates = numGates;
@@ -26,6 +30,21 @@ public class Puzzle {
         Log.e("here", "I am here!");
         Log.e("tree height", String.valueOf(this.height));
         Log.e("\ntree!\n", this.toString());
+
+        List<Integer> nodeWeights = new ArrayList<>();
+        this.nodeDistances(this.puzzle, nodeWeights, 0);
+        this.leftNodeWeight = 0;
+        this.rightNodeWeight = 0;
+        int value;
+        for(int i = 0; i < nodeWeights.size(); i++) {
+            Log.e("Value " + i, nodeWeights.get(i).toString());
+            value = nodeWeights.get(i);
+            if(value < leftNodeWeight) {
+                leftNodeWeight = value;
+            } else if (value > rightNodeWeight) {
+                rightNodeWeight = value;
+            }
+        }
     }
 
     private PuzzleGate Build(int size) {
@@ -48,12 +67,27 @@ public class Puzzle {
         int height = canvas.getHeight();
         Paint paint = new Paint();
 
+        // find if left-heavy or right-heavy to determine starting position
+        int gridWidth = width / this.numInputs;
+        int puzzleWeight = this.leftNodeWeight + this.rightNodeWeight;
+        int shiftAmount = (-1) * (puzzleWeight / 2);
+        int startingX = (width / 2) - (gridWidth / 2); // start in the middle;
+        startingX += (shiftAmount * gridWidth);
+        if(puzzleWeight % 2 != 0) {
+            startingX += (int)(Math.signum(puzzleWeight)) * -1 * (gridWidth / 2);
+        }
+
+        Log.e("puzzleWeight", String.valueOf(puzzleWeight));
+        Log.e("shiftAmount", String.valueOf(shiftAmount));
+        Log.e("min ----", String.valueOf(this.leftNodeWeight));
+        Log.e("max ----", String.valueOf(this.rightNodeWeight));
+        Log.e("x:", String.valueOf(startingX));
+
         this.drawGrid(canvas, width, height, this.numInputs, paint);
-        this.draw(this.puzzle, canvas, width / 2, 50, paint);
+        this.draw(this.puzzle, canvas, startingX, 50, gridWidth, paint);
 
         return bg;
     }
-
 
     private void drawGrid(Canvas canvas, int width, int height, int numInputs, Paint paint) {
         int gridWidth = width / numInputs;
@@ -65,10 +99,9 @@ public class Puzzle {
         }
     }
 
-    private void draw(PuzzleGate head, Canvas canvas, int x, int y, Paint paint) {
-        Log.e("coords", String.valueOf(x) + ", " + String.valueOf(y));
+    private void draw(PuzzleGate head, Canvas canvas, int x, int y, int width, Paint paint) {
         paint.setColor(Color.parseColor("#CD5C5C"));
-        canvas.drawRect(x, y, x + GATE_WIDTH, y + GATE_HEIGHT, paint);
+        canvas.drawRect(x, y, x + width, y + GATE_HEIGHT, paint);
         paint.setColor(Color.parseColor("#FFFFFF"));
         paint.setTextSize(30);
         canvas.drawText(head.getGate(), x + (GATE_HEIGHT / 4), y + (GATE_HEIGHT / 2), paint);
@@ -76,13 +109,26 @@ public class Puzzle {
         PuzzleGate rightGate = head.getRightGate();
         if(rightGate != null) {
 //            canvas.drawLine(x + (GATE_WIDTH / 2), y + GATE_HEIGHT, x + (GATE_WIDTH * 3), y + (GATE_HEIGHT * 5), paint);
-            this.draw(rightGate, canvas, x + (GATE_WIDTH * 2), y + (GATE_HEIGHT * 4), paint);
+            this.draw(rightGate, canvas, x + width, y + (GATE_HEIGHT * 2), width, paint);
         }
 
         PuzzleGate leftGate  = head.getLeftGate();
         if(leftGate != null) {
 //            canvas.drawLine(x + (GATE_WIDTH / 2), y + GATE_HEIGHT, x - (GATE_WIDTH * 2), y + (GATE_HEIGHT * 5), paint);
-            this.draw(leftGate, canvas, x - (GATE_WIDTH * 2), y + (GATE_HEIGHT * 4), paint);
+            this.draw(leftGate, canvas, x - width, y + (GATE_HEIGHT * 2), width, paint);
+        }
+    }
+
+
+    private void nodeDistances(PuzzleGate head, List<Integer> minMax, int currentDistance) {
+        minMax.add(currentDistance);
+        PuzzleGate leftGate  = head.getLeftGate();
+        if(leftGate != null) {
+            nodeDistances(leftGate, minMax, currentDistance - 1);
+        }
+        PuzzleGate rightGate  = head.getRightGate();
+        if(rightGate != null) {
+            nodeDistances(rightGate, minMax, currentDistance + 1);
         }
     }
 
