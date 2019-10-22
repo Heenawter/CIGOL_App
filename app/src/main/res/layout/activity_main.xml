@@ -37,36 +37,7 @@
             android:id="@+id/toggle_bits_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <Switch
-                android:id="@+id/switch11"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Switch" />
-
-            <Switch
-                android:id="@+id/switch12"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Switch" />
-
-            <Switch
-                android:id="@+id/switch13"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Switch" />
-
-            <Switch
-                android:id="@+id/switch14"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Switch" />
-        </LinearLayout>
+            android:orientation="horizontal"/>
 
         <Button
             android:id="@+id/button"

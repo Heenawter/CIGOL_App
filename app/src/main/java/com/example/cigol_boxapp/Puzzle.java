@@ -27,9 +27,9 @@ public class Puzzle {
         this.puzzle = Build(numGates);
         this.height = this.getHeight(this.puzzle);
 
-        Log.e("here", "I am here!");
-        Log.e("tree height", String.valueOf(this.height));
-        Log.e("\ntree!\n", this.toString());
+        Log.d("here", "I am here!");
+        Log.d("tree height", String.valueOf(this.height));
+        Log.d("\ntree!\n", this.toString());
 
         List<Integer> nodeWeights = new ArrayList<>();
         this.nodeDistances(this.puzzle, nodeWeights, 0);
@@ -77,11 +77,11 @@ public class Puzzle {
             startingX += (int)(Math.signum(puzzleWeight)) * -1 * (gridWidth / 2);
         }
 
-        Log.e("puzzleWeight", String.valueOf(puzzleWeight));
-        Log.e("shiftAmount", String.valueOf(shiftAmount));
-        Log.e("min ----", String.valueOf(this.leftNodeWeight));
-        Log.e("max ----", String.valueOf(this.rightNodeWeight));
-        Log.e("x:", String.valueOf(startingX));
+        Log.d("puzzleWeight", String.valueOf(puzzleWeight));
+        Log.d("shiftAmount", String.valueOf(shiftAmount));
+        Log.d("min ----", String.valueOf(this.leftNodeWeight));
+        Log.d("max ----", String.valueOf(this.rightNodeWeight));
+        Log.d("x:", String.valueOf(startingX));
 
         this.drawGrid(canvas, width, height, this.numInputs, paint);
         this.draw(this.puzzle, canvas, startingX, 50, gridWidth, paint);
@@ -106,15 +106,17 @@ public class Puzzle {
         paint.setTextSize(30);
         canvas.drawText(head.getGate(), x + (GATE_HEIGHT / 4), y + (GATE_HEIGHT / 2), paint);
 
+        paint.setColor(Color.parseColor("#00FFFF"));
+        paint.setStrokeWidth(5);
         PuzzleGate rightGate = head.getRightGate();
         if(rightGate != null) {
-//            canvas.drawLine(x + (GATE_WIDTH / 2), y + GATE_HEIGHT, x + (GATE_WIDTH * 3), y + (GATE_HEIGHT * 5), paint);
+            canvas.drawLine(x + (width / 2), y + GATE_HEIGHT, x + (int)(width * 1.5), y + (GATE_HEIGHT * 2), paint);
             this.draw(rightGate, canvas, x + width, y + (GATE_HEIGHT * 2), width, paint);
         }
 
         PuzzleGate leftGate  = head.getLeftGate();
         if(leftGate != null) {
-//            canvas.drawLine(x + (GATE_WIDTH / 2), y + GATE_HEIGHT, x - (GATE_WIDTH * 2), y + (GATE_HEIGHT * 5), paint);
+            canvas.drawLine(x + (width / 2), y + GATE_HEIGHT, x - (width / 2), y + (GATE_HEIGHT * 2), paint);
             this.draw(leftGate, canvas, x - width, y + (GATE_HEIGHT * 2), width, paint);
         }
     }

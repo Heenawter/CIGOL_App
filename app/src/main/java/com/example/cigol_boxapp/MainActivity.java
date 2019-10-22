@@ -10,11 +10,13 @@ import android.widget.LinearLayout;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.widget.Switch;
 
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView navigation;
     private LinearLayout paintLayout;
+    private LinearLayout switchContainer;
 
     private int layoutWidth = 0;
     private int layoutHeight = 0;
@@ -59,7 +61,13 @@ public class MainActivity extends AppCompatActivity {
         setTitle("CIGOL - Probe");
 
         bindViews();
-        this.puzzle = new Puzzle(4);
+        int numGates = 5;
+        Switch test;
+        this.puzzle = new Puzzle(numGates);
+        for(int i = 0; i < numGates; i++) {
+            test = new Switch(this);
+            switchContainer.addView(test);
+        }
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
@@ -70,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
     private void bindViews() {
         navigation = findViewById(R.id.navigation);
         paintLayout = findViewById(R.id.rect);
+        switchContainer = findViewById(R.id.toggle_bits_container);
     }
 
     private void draw() {
