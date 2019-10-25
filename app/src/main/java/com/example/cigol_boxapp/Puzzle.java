@@ -1,7 +1,9 @@
 package com.example.cigol_boxapp;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Random;
 
 import android.graphics.Bitmap;
@@ -18,8 +20,6 @@ public class Puzzle {
     private int numInputs;
     private PuzzleGate puzzle;
     private int height;
-    private int leftNodeWeight;
-    private int rightNodeWeight;
 
     public Puzzle(int numGates) {
         this.numGates = numGates;
@@ -27,24 +27,7 @@ public class Puzzle {
         this.puzzle = Build(numGates);
         this.height = this.getHeight(this.puzzle);
 
-        Log.d("here", "I am here!");
-        Log.d("tree height", String.valueOf(this.height));
-        Log.d("\ntree!\n", this.toString());
-
-        List<Integer> nodeWeights = new ArrayList<>();
-        this.nodeDistances(this.puzzle, nodeWeights, 0);
-        this.leftNodeWeight = 0;
-        this.rightNodeWeight = 0;
-        int value;
-        for(int i = 0; i < nodeWeights.size(); i++) {
-            Log.e("Value " + i, nodeWeights.get(i).toString());
-            value = nodeWeights.get(i);
-            if(value < leftNodeWeight) {
-                leftNodeWeight = value;
-            } else if (value > rightNodeWeight) {
-                rightNodeWeight = value;
-            }
-        }
+        Log.d("\ntreeeee!!!\n", this.toString());
     }
 
     private PuzzleGate Build(int size) {
@@ -67,26 +50,47 @@ public class Puzzle {
         int height = canvas.getHeight();
         Paint paint = new Paint();
 
-        // find if left-heavy or right-heavy to determine starting position
         int gridWidth = width / this.numInputs;
-        int puzzleWeight = this.leftNodeWeight + this.rightNodeWeight;
-        int shiftAmount = (-1) * (puzzleWeight / 2);
-        int startingX = (width / 2) - (gridWidth / 2); // start in the middle;
-        startingX += (shiftAmount * gridWidth);
-        if(puzzleWeight % 2 != 0) {
-            startingX += (int)(Math.signum(puzzleWeight)) * -1 * (gridWidth / 2);
+        this.positionGates(gridWidth);
+        this.drawGrid(canvas, width, height, this.numInputs, paint);
+        this.drawPuzzle(this.puzzle, gridWidth, canvas, paint);
+        return bg;
+    }
+
+    private void positionGates(int width) {
+        List<PuzzleGate> gateOrder = new LinkedList<>();
+        this.inorderTraversal(this.puzzle, gateOrder);
+        int startingX = width / 2;
+        for(int i = 0; i < gateOrder.size(); i++) {
+            gateOrder.get(i).setXPosition(startingX);
+            startingX += width;
         }
 
-        Log.d("puzzleWeight", String.valueOf(puzzleWeight));
-        Log.d("shiftAmount", String.valueOf(shiftAmount));
-        Log.d("min ----", String.valueOf(this.leftNodeWeight));
-        Log.d("max ----", String.valueOf(this.rightNodeWeight));
-        Log.d("x:", String.valueOf(startingX));
+        this.positionLevelOrder();
+    }
 
-        this.drawGrid(canvas, width, height, this.numInputs, paint);
-        this.draw(this.puzzle, canvas, startingX, 50, gridWidth, paint);
+    private void drawPuzzle(PuzzleGate head, int width, Canvas canvas, Paint paint) {
+        int x;
+        int y;
 
-        return bg;
+        if(head == null) {
+            return;
+        } else {
+            x = head.getPosX();
+            y = head.getPosY();
+
+            paint.setColor(Color.parseColor("#CD5C5C"));
+            canvas.drawRect(x, y, x + width, y + GATE_HEIGHT, paint);
+            paint.setColor(Color.parseColor("#FFFFFF"));
+            paint.setTextSize(30);
+            canvas.drawText(head.getGate(), x + (GATE_HEIGHT / 4), y + (GATE_HEIGHT / 2), paint);
+
+            Log.d("current", head.getGate());
+            Log.d("x and y", x + ", " + y);
+
+            this.drawPuzzle(head.getLeftGate(), width, canvas, paint);
+            this.drawPuzzle(head.getRightGate(), width, canvas, paint);
+        }
     }
 
     private void drawGrid(Canvas canvas, int width, int height, int numInputs, Paint paint) {
@@ -99,40 +103,53 @@ public class Puzzle {
         }
     }
 
-    private void draw(PuzzleGate head, Canvas canvas, int x, int y, int width, Paint paint) {
-        paint.setColor(Color.parseColor("#CD5C5C"));
-        canvas.drawRect(x, y, x + width, y + GATE_HEIGHT, paint);
-        paint.setColor(Color.parseColor("#FFFFFF"));
-        paint.setTextSize(30);
-        canvas.drawText(head.getGate(), x + (GATE_HEIGHT / 4), y + (GATE_HEIGHT / 2), paint);
-
-        paint.setColor(Color.parseColor("#00FFFF"));
-        paint.setStrokeWidth(5);
-        PuzzleGate rightGate = head.getRightGate();
-        if(rightGate != null) {
-            canvas.drawLine(x + (width / 2), y + GATE_HEIGHT, x + (int)(width * 1.5), y + (GATE_HEIGHT * 2), paint);
-            this.draw(rightGate, canvas, x + width, y + (GATE_HEIGHT * 2), width, paint);
+    private void inorderTraversal(PuzzleGate head, List<PuzzleGate> order) {
+        if(head == null) {
+            return;
         }
 
-        PuzzleGate leftGate  = head.getLeftGate();
-        if(leftGate != null) {
-            canvas.drawLine(x + (width / 2), y + GATE_HEIGHT, x - (width / 2), y + (GATE_HEIGHT * 2), paint);
-            this.draw(leftGate, canvas, x - width, y + (GATE_HEIGHT * 2), width, paint);
+        // traverse left
+        this.inorderTraversal(head.getLeftGate(), order);
+
+        // visit
+        order.add(head);
+
+        // traverse right
+        this.inorderTraversal(head.getRightGate(), order);
+    }
+
+    private void positionLevelOrder() {
+        Queue<PuzzleGate> queue = new LinkedList<>();
+        queue.add(this.puzzle);
+
+        int y = 50;
+        int nodeCount = 0;
+        while (!queue.isEmpty())
+        {
+            nodeCount = queue.size();
+
+            while(nodeCount > 0) {
+                PuzzleGate tempNode = queue.poll();
+                tempNode.setYPosition(y);
+
+                /*Enqueue left child */
+                PuzzleGate left = tempNode.getLeftGate();
+                if (left != null) {
+                    queue.add(left);
+                }
+
+                /*Enqueue right child */
+                PuzzleGate right = tempNode.getRightGate();
+                if (right != null) {
+                    queue.add(right);
+                }
+                nodeCount--;
+            }
+
+            y += 300; // only adjust y when on different level
         }
     }
 
-
-    private void nodeDistances(PuzzleGate head, List<Integer> minMax, int currentDistance) {
-        minMax.add(currentDistance);
-        PuzzleGate leftGate  = head.getLeftGate();
-        if(leftGate != null) {
-            nodeDistances(leftGate, minMax, currentDistance - 1);
-        }
-        PuzzleGate rightGate  = head.getRightGate();
-        if(rightGate != null) {
-            nodeDistances(rightGate, minMax, currentDistance + 1);
-        }
-    }
 
     private int getHeight(PuzzleGate head) {
         if (head == null)
@@ -154,7 +171,7 @@ public class Puzzle {
         if(rightGate != null) {
             this.toString(rightGate, new StringBuilder().append(prefix).append(isTail ? "│   " : "    "), false, sb);
         }
-        sb.append(prefix).append(isTail ? "└── " : "┌── ").append(String.valueOf(head.getGate())).append("\n");
+        sb.append(prefix).append(isTail ? "└── " : "┌── ").append(head.getGate()).append("\n");
 
         PuzzleGate leftGate  = head.getLeftGate();
         if(leftGate !=null) {

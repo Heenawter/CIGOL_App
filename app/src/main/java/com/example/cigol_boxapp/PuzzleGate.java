@@ -1,8 +1,5 @@
 package com.example.cigol_boxapp;
 
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.util.Log;
 
 import java.util.Random;
@@ -15,11 +12,15 @@ public class PuzzleGate {
     private int gate;
     private PuzzleGate leftGate;
     private PuzzleGate rightGate;
+    private int posX;
+    private int posY;
 
     public PuzzleGate() {
         this.gate = (short)(new Random().nextInt(XOR + 1));
         this.leftGate = null;
         this.rightGate = null;
+        this.posX = 0;
+        this.posY = 0;
     }
 
     public short getOutput(short leftInput, short rightInput) {
@@ -34,6 +35,23 @@ public class PuzzleGate {
         return output;
     }
 
+    public int countChildren() {
+        PuzzleGate left = this.leftGate;
+        int count = 0;
+        if(left != null) {
+            count++;
+            count += left.countChildren();
+        }
+
+        PuzzleGate right = this.rightGate;
+        if(right != null) {
+            count++;
+            count += right.countChildren();
+        }
+
+        return count;
+    }
+
     public String getGate() {
         String gate = "";
         if(this.gate == AND) {
@@ -46,19 +64,25 @@ public class PuzzleGate {
         return gate;
     }
 
-    public void addLeftGate(PuzzleGate gate) {
-        this.leftGate = gate;
+    public void setXPosition(int x) {
+        this.posX = x;
     }
 
-    public void addRightGate(PuzzleGate gate) {
-        this.rightGate = gate;
+    public void setYPosition(int y) {
+        this.posY = y;
     }
+
+    public void addLeftGate(PuzzleGate gate) { this.leftGate = gate; }
+
+    public void addRightGate(PuzzleGate gate) { this.rightGate = gate; }
+
+    public int getPosX() { return this.posX; }
+
+    public int getPosY() { return this.posY; }
 
     public PuzzleGate getLeftGate() {
         return this.leftGate;
     }
 
-    public PuzzleGate getRightGate() {
-        return this.rightGate;
-    }
+    public PuzzleGate getRightGate() { return this.rightGate; }
 }
