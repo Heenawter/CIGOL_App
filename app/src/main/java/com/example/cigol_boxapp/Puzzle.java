@@ -51,13 +51,13 @@ public class Puzzle {
         Paint paint = new Paint();
 
         int gridWidth = width / this.numInputs;
-        this.positionGates(gridWidth);
+        List<PuzzleGate> order = this.positionGates(gridWidth);
         this.drawGrid(canvas, width, height, this.numInputs, paint);
-        this.drawPuzzle(this.puzzle, gridWidth, canvas, paint);
+        this.drawPuzzle(order, gridWidth, canvas, paint);
         return bg;
     }
 
-    private void positionGates(int width) {
+    private List<PuzzleGate> positionGates(int width) {
         List<PuzzleGate> gateOrder = new LinkedList<>();
         this.inorderTraversal(this.puzzle, gateOrder);
         int startingX = width / 2;
@@ -67,29 +67,39 @@ public class Puzzle {
         }
 
         this.positionLevelOrder();
+
+        return gateOrder;
     }
 
-    private void drawPuzzle(PuzzleGate head, int width, Canvas canvas, Paint paint) {
-        int x;
-        int y;
+    private void drawPuzzle(List<PuzzleGate> order, int width, Canvas canvas, Paint paint) {
+        PuzzleGate current, left, right;
+        int x, y;
+        int half = width / 2;
 
-        if(head == null) {
-            return;
-        } else {
-            x = head.getPosX();
-            y = head.getPosY();
+        for(int i = 0; i < order.size(); i++) {
+            current = order.get(i);
+            x = current.getPosX();
+            y = current.getPosY();
 
             paint.setColor(Color.parseColor("#CD5C5C"));
             canvas.drawRect(x, y, x + width, y + GATE_HEIGHT, paint);
             paint.setColor(Color.parseColor("#FFFFFF"));
             paint.setTextSize(30);
-            canvas.drawText(head.getGate(), x + (GATE_HEIGHT / 4), y + (GATE_HEIGHT / 2), paint);
+            canvas.drawText(current.getGate(), x + (GATE_HEIGHT / 4), y + (GATE_HEIGHT / 2), paint);
 
-            Log.d("current", head.getGate());
-            Log.d("x and y", x + ", " + y);
-
-            this.drawPuzzle(head.getLeftGate(), width, canvas, paint);
-            this.drawPuzzle(head.getRightGate(), width, canvas, paint);
+            paint.setStrokeWidth(4);
+            left = current.getLeftGate();
+            if(left != null) {
+                canvas.drawLine(x, y + GATE_HEIGHT, left.getPosX() + half, left.getPosY(), paint);
+            } else {
+                canvas.drawLine(x, y + GATE_HEIGHT, x, 1000, paint);
+            }
+            right = current.getRightGate();
+            if(right != null) {
+                canvas.drawLine(x + width, y + GATE_HEIGHT, right.getPosX() + half, right.getPosY(), paint);
+            } else {
+                canvas.drawLine(x + width, y + GATE_HEIGHT, x + width, 1000, paint);
+            }
         }
     }
 
@@ -146,7 +156,7 @@ public class Puzzle {
                 nodeCount--;
             }
 
-            y += 300; // only adjust y when on different level
+            y += 200; // only adjust y when on different level
         }
     }
 
