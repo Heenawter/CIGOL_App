@@ -8,4 +8,9 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="SwitchCompatTheme" >
+        <item name="colorControlActivated">@color/pure_red</item>
+<!--        <item name="android:text">Test</item>-->
+    </style>
+
 </resources>

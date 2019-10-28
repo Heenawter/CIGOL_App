@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
+import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
 import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
@@ -21,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private int layoutWidth = 0;
     private int layoutHeight = 0;
     private Puzzle puzzle;
+    private int numGates;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -61,14 +63,8 @@ public class MainActivity extends AppCompatActivity {
         setTitle("CIGOL - Probe");
 
         bindViews();
-        int numGates = 5;
-        Switch test;
-        this.puzzle = new Puzzle(numGates);
-        for(int i = 0; i < numGates; i++) {
-            test = new Switch(this);
-            switchContainer.addView(test);
-        }
-
+        this.numGates = 4;
+        this.puzzle = new Puzzle(this.numGates);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         ViewTreeObserver vto = paintLayout.getViewTreeObserver();
@@ -86,5 +82,16 @@ public class MainActivity extends AppCompatActivity {
 
         paintLayout.setBackgroundDrawable(new BitmapDrawable(getApplicationContext().getResources(), bg));
 
+        Switch test;
+
+//        int buttonStyle = R.style.SwitchCompatTheme;
+        int width = this.layoutWidth / (this.numGates + 1);
+        for(int i = 0; i < this.numGates + 1; i++) {
+//            test = new Switch(new ContextThemeWrapper(this, buttonStyle));
+            test = new Switch(this);
+            test.setSwitchMinWidth(width - 10);
+            test.setPadding(10, 0, 0, 0);
+            switchContainer.addView(test);
+        }
     }
 }
