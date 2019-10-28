@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         setTitle("CIGOL - Probe");
 
         bindViews();
-        this.numGates = 4;
+        this.numGates = 5;
         this.puzzle = new Puzzle(this.numGates);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         for(int i = 0; i < this.numGates + 1; i++) {
 //            test = new Switch(new ContextThemeWrapper(this, buttonStyle));
             test = new Switch(this);
-            test.setId(i + 1);
+            test.setId(i);
             test.setSwitchMinWidth(width - 10);
             test.setPadding(10, 0, 0, 0);
             test.setOnCheckedChangeListener(mOnSwitchSelectedListener);
