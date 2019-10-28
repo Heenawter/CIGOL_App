@@ -4,9 +4,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
 import android.view.ViewTreeObserver;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 
 import android.graphics.Bitmap;
@@ -43,13 +45,22 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private CompoundButton.OnCheckedChangeListener mOnSwitchSelectedListener
+            = new CompoundButton.OnCheckedChangeListener() {
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            // the isChecked will be true if the switch is in the On position
+            Log.e("id of switch", "" + buttonView.getId());
+            puzzle.toggleInput(buttonView.getId(), isChecked);
+        }
+    };
+
     private ViewTreeObserver.OnGlobalLayoutListener layoutListener
             = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
             layoutWidth  = paintLayout.getMeasuredWidth();
             layoutHeight = paintLayout.getMeasuredHeight();
-            paintLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+            paintLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
             // draw only once width and height are established
             draw();
@@ -80,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
     private void draw() {
         Bitmap bg = this.puzzle.draw(this.layoutHeight, this.layoutWidth);
 
-        paintLayout.setBackgroundDrawable(new BitmapDrawable(getApplicationContext().getResources(), bg));
+        paintLayout.setBackground(new BitmapDrawable(getApplicationContext().getResources(), bg));
 
         Switch test;
 
@@ -89,8 +100,10 @@ public class MainActivity extends AppCompatActivity {
         for(int i = 0; i < this.numGates + 1; i++) {
 //            test = new Switch(new ContextThemeWrapper(this, buttonStyle));
             test = new Switch(this);
+            test.setId(i + 1);
             test.setSwitchMinWidth(width - 10);
             test.setPadding(10, 0, 0, 0);
+            test.setOnCheckedChangeListener(mOnSwitchSelectedListener);
             switchContainer.addView(test);
         }
     }

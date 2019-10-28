@@ -11,6 +11,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.Log;
+import android.util.Pair;
 
 public class Puzzle {
     static final int GATE_WIDTH = 100;
@@ -19,13 +20,21 @@ public class Puzzle {
     private int numGates;
     private int numInputs;
     private PuzzleGate puzzle;
+    private List<Pair<Integer, Integer>> inputPositions;
     private int height;
+    private int gridWidth;
+
+    private Canvas canvas;
+    private Paint paint;
 
     public Puzzle(int numGates) {
         this.numGates = numGates;
         this.numInputs = numGates + 1;
         this.puzzle = Build(numGates);
         this.height = this.getHeight(this.puzzle);
+        this.paint = new Paint();
+
+        inputPositions = new LinkedList<>();
 
         Log.d("\ntreeeee!!!\n", this.toString());
     }
@@ -44,26 +53,41 @@ public class Puzzle {
 
     public Bitmap draw(int layoutHeight, int layoutWidth) {
         Bitmap bg = Bitmap.createBitmap(layoutWidth, layoutHeight, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bg);
+        this.canvas = new Canvas(bg);
+        int width = this.canvas.getWidth();
+        int height = this.canvas.getHeight();
 
-        int width = canvas.getWidth();
-        int height = canvas.getHeight();
-        Paint paint = new Paint();
+        this.gridWidth = width / this.numInputs;
+        List<PuzzleGate> order = this.positionGates();
+        this.drawGrid(height, this.numInputs);
+        this.drawPuzzle(order);
 
-        int gridWidth = width / this.numInputs;
-        List<PuzzleGate> order = this.positionGates(gridWidth);
-        this.drawGrid(canvas, width, height, this.numInputs, paint);
-        this.drawPuzzle(order, gridWidth, canvas, paint);
         return bg;
     }
 
-    private List<PuzzleGate> positionGates(int width) {
+    public void toggleInput(int num, boolean on) {
+//        int position = (this.gridWidth *  num) - (this.gridWidth / 2);
+        Pair<Integer, Integer> position = this.inputPositions.get(num - 1);
+        int x = position.first;
+        int y = position.second;
+
+        if(on) {
+            this.paint.setColor(Color.parseColor("#FF00FF"));
+        } else {
+            this.paint.setColor(Color.parseColor("#FFFFFF"));
+        }
+
+        this.paint.setStrokeWidth(4);
+        this.canvas.drawLine(x, y, x, 1000, this.paint);
+    }
+
+    private List<PuzzleGate> positionGates() {
         List<PuzzleGate> gateOrder = new LinkedList<>();
         this.inorderTraversal(this.puzzle, gateOrder);
-        int startingX = width / 2;
+        int startingX = this.gridWidth / 2;
         for(int i = 0; i < gateOrder.size(); i++) {
             gateOrder.get(i).setXPosition(startingX);
-            startingX += width;
+            startingX += this.gridWidth;
         }
 
         this.positionLevelOrder();
@@ -71,45 +95,46 @@ public class Puzzle {
         return gateOrder;
     }
 
-    private void drawPuzzle(List<PuzzleGate> order, int width, Canvas canvas, Paint paint) {
+    private void drawPuzzle(List<PuzzleGate> order) {
         PuzzleGate current, left, right;
         int x, y;
-        int half = width / 2;
+        int half = this.gridWidth / 2;
 
         for(int i = 0; i < order.size(); i++) {
             current = order.get(i);
             x = current.getPosX();
             y = current.getPosY();
 
-            paint.setColor(Color.parseColor("#CD5C5C"));
-            canvas.drawRect(x, y, x + width, y + GATE_HEIGHT, paint);
-            paint.setColor(Color.parseColor("#FFFFFF"));
-            paint.setTextSize(30);
-            canvas.drawText(current.getGate(), x + (GATE_HEIGHT / 4), y + (GATE_HEIGHT / 2), paint);
+            this.paint.setColor(Color.parseColor("#CD5C5C"));
+            this.canvas.drawRect(x, y, x + this.gridWidth, y + GATE_HEIGHT, this.paint);
+            this.paint.setColor(Color.parseColor("#FFFFFF"));
+            this.paint.setTextSize(30);
+            this.canvas.drawText(current.getGate(), x + (GATE_HEIGHT / 4), y + (GATE_HEIGHT / 2), this.paint);
 
-            paint.setStrokeWidth(4);
+            this.paint.setStrokeWidth(4);
             left = current.getLeftGate();
             if(left != null) {
-                canvas.drawLine(x, y + GATE_HEIGHT, left.getPosX() + half, left.getPosY(), paint);
+                this.canvas.drawLine(x, y + GATE_HEIGHT, left.getPosX() + half, left.getPosY(), this.paint);
             } else {
-                canvas.drawLine(x, y + GATE_HEIGHT, x, 1000, paint);
+                this.canvas.drawLine(x, y + GATE_HEIGHT, x, 1000, this.paint);
+                inputPositions.add(new Pair<>(x, y + GATE_HEIGHT));
             }
             right = current.getRightGate();
             if(right != null) {
-                canvas.drawLine(x + width, y + GATE_HEIGHT, right.getPosX() + half, right.getPosY(), paint);
+                this.canvas.drawLine(x + this.gridWidth, y + GATE_HEIGHT, right.getPosX() + half, right.getPosY(), this.paint);
             } else {
-                canvas.drawLine(x + width, y + GATE_HEIGHT, x + width, 1000, paint);
+                this.canvas.drawLine(x + this.gridWidth, y + GATE_HEIGHT, x + this.gridWidth, 1000, this.paint);
+                inputPositions.add(new Pair<>(x + this.gridWidth, y + GATE_HEIGHT));
             }
         }
     }
 
-    private void drawGrid(Canvas canvas, int width, int height, int numInputs, Paint paint) {
-        int gridWidth = width / numInputs;
-        int x = gridWidth;
-        paint.setColor(Color.parseColor("#FFFFFF"));
+    private void drawGrid(int height, int numInputs) {
+        int x = this.gridWidth;
+        this.paint.setColor(Color.parseColor("#FFFFFF"));
         for(int i = 0; i < numInputs; i++) {
-            canvas.drawLine(x, 0, x, height, paint);
-            x = x + gridWidth;
+            this.canvas.drawLine(x, 0, x, height, this.paint);
+            x = x + this.gridWidth;
         }
     }
 
