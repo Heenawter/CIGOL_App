@@ -21,6 +21,7 @@ public class Puzzle {
     private int numInputs;
     private PuzzleGate puzzle;
     List<PuzzleGate> gateOrder;
+    List<Pair<Integer, PuzzleGate>> inputOrder;
     private int height;
     private int gridWidth;
 
@@ -33,8 +34,6 @@ public class Puzzle {
         this.puzzle = Build(numGates);
         this.height = this.getHeight(this.puzzle);
         this.paint = new Paint();
-
-        gateOrder = new LinkedList<>();
 
         Log.d("\ntreeeee!!!\n", this.toString());
     }
@@ -59,6 +58,7 @@ public class Puzzle {
 
         this.gridWidth = width / this.numInputs;
         this.gateOrder = this.positionGates();
+        this.inputOrder = this.buildInputList();
         this.drawGrid(height, this.numInputs);
         this.drawPuzzle();
 
@@ -66,26 +66,38 @@ public class Puzzle {
     }
 
     public void toggleInput(int num, boolean on) {
-        int i = 0;
-        int count = 0;
-        PuzzleGate current = null;
-        boolean foundGate = false;
-        while(!foundGate) {
-            current = this.gateOrder.get(i);
-            count += current.getInputCount();
-            if(count > num) {
-                foundGate = true;
-            } else {
-                i++;
-            }
-        }
-
         if(on) {
             this.paint.setColor(Color.parseColor("#FF00FF"));
         } else {
             this.paint.setColor(Color.parseColor("#FFFFFF"));
         }
-        current.toggleInput(num, this.gridWidth, this.canvas, this.paint);
+        paint.setStrokeWidth(4);
+
+        Pair<Integer, PuzzleGate> inputPair = this.inputOrder.get(num);
+        if(inputPair.first == -1) {
+            inputPair.second.toggle(this.canvas, this.paint);
+        } else {
+            inputPair.second.toggle(this.canvas, this.paint, this.gridWidth);
+        }
+    }
+
+    public int probe() {
+        return probe(this.puzzle);
+    }
+
+    private int probe(PuzzleGate head) {
+        PuzzleGate left = head.getLeftGate();
+        PuzzleGate right = head.getRightGate();
+
+        if(left == null) {
+            return head.getLeftInput();
+        }
+
+        if(right == null) {
+            return head.getRightInput();
+        }
+
+        return head.getOutput(probe(left), probe(right));
     }
 
     private List<PuzzleGate> positionGates() {
@@ -102,13 +114,30 @@ public class Puzzle {
         return gateOrder;
     }
 
-    private void drawPuzzle() {
+    private List<Pair<Integer, PuzzleGate>> buildInputList() {
+        List<Pair<Integer, PuzzleGate>> inputList = new LinkedList<>();
         PuzzleGate current;
-
-        int inputCount = 0;
+        Pair<Integer, PuzzleGate> pair;
         for(int i = 0; i < this.gateOrder.size(); i++) {
             current = this.gateOrder.get(i);
-            inputCount = current.draw(this.canvas, this.paint, this.gridWidth, inputCount);
+            if(current.getLeftGate() == null) {
+                pair = new Pair(-1, current);
+                inputList.add(pair);
+            }
+            if(current.getRightGate() == null) {
+                pair = new Pair(1, current);
+                inputList.add(pair);
+            }
+        }
+        return inputList;
+    }
+
+    private void drawPuzzle() {
+        PuzzleGate current;
+        boolean requiresUserInput;
+        for(int i = 0; i < this.gateOrder.size(); i++) {
+            current = this.gateOrder.get(i);
+            current.draw(this.canvas, this.paint, this.gridWidth);
         }
     }
 

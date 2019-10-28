@@ -18,8 +18,6 @@ public class PuzzleGate {
     private PuzzleGate rightGate;
     private int leftInput;
     private int rightInput;
-    private int leftInput_num;
-    private int rightInput_num;
 
     private int posX;
     private int posY;
@@ -33,26 +31,24 @@ public class PuzzleGate {
 
         this.leftInput = 0;
         this.rightInput = 0;
-        this.leftInput_num = -1;
-        this.rightInput_num = -1;
 
         this.posX = 0;
         this.posY = 0;
     }
 
-    public short getOutput(short leftInput, short rightInput) {
-        short output = -1;
+    public int getOutput(int leftInput, int rightInput) {
+        int output = -1;
         if(this.gate == AND) {
-            output = (short)(leftInput & rightInput);
+            output = leftInput & rightInput;
         } else if (this.gate == OR) {
-            output = (short)(leftInput | rightInput);
+            output = leftInput | rightInput;
         } else if (this.gate == XOR) {
-            output = (short)(leftInput ^ rightInput);
+            output = leftInput ^ rightInput;
         }
         return output;
     }
 
-    public int draw(Canvas canvas, Paint paint, int width, int inputCount) {
+    public void draw(Canvas canvas, Paint paint, int width) {
         paint.setColor(Color.parseColor("#CD5C5C"));
         canvas.drawRect(posX, posY, posX + width, posY + GATE_HEIGHT, paint);
         paint.setColor(Color.parseColor("#FFFFFF"));
@@ -64,18 +60,13 @@ public class PuzzleGate {
             canvas.drawLine(posX, posY + GATE_HEIGHT, leftGate.getPosX() + (width / 2), leftGate.getPosY(), paint);
         } else {
             canvas.drawLine(posX, posY + GATE_HEIGHT, posX, 1000, paint);
-            inputCount++;
-            this.leftInput_num = inputCount;
         }
 
         if(rightGate != null) {
             canvas.drawLine(posX + width, posY + GATE_HEIGHT, rightGate.getPosX() + (width / 2), rightGate.getPosY(), paint);
         } else {
             canvas.drawLine(posX + width, posY + GATE_HEIGHT, posX + width, 1000, paint);
-            inputCount++;
-            this.rightInput_num = inputCount;
         }
-        return inputCount;
     }
 
     public String getGate() {
@@ -112,6 +103,11 @@ public class PuzzleGate {
 
     public PuzzleGate getRightGate() { return this.rightGate; }
 
+    public int getLeftInput() { return this.leftInput; }
+
+    public int getRightInput() { return this.rightInput; }
+
+
     public int getInputCount() {
         int num = 0;
         if(leftGate == null)
@@ -121,19 +117,14 @@ public class PuzzleGate {
         return num;
     }
 
-    public void toggleInput(int input, int width, Canvas canvas, Paint paint) {
-        paint.setStrokeWidth(4);
-        input++;
+    public void toggle(Canvas canvas, Paint paint) {
+        this.leftInput = this.leftInput ^ 1;
+        canvas.drawLine(posX, posY, posX, 1000, paint);
+    }
 
-        if(leftInput_num == input) {
-            this.leftInput = this.leftInput ^ 1;
-            canvas.drawLine(posX, posY, posX, 1000, paint);
-        }  else if(rightInput_num == input) {
-            this.rightInput = this.rightInput ^ 1;
-            canvas.drawLine(posX + width, posY, posX + width, 1000, paint);
-        }
-        Log.e("left", "" + this.leftInput);
-        Log.e("right", "" + this.rightInput);
+    public void toggle(Canvas canvas, Paint paint, int width) {
+        this.rightInput = this.rightInput ^ 1;
+        canvas.drawLine(posX + width, posY, posX + width, 1000, paint);
     }
 }
 
