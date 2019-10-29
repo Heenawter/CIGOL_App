@@ -48,24 +48,24 @@ public class PuzzleGate {
         return output;
     }
 
-    public void draw(Canvas canvas, Paint paint, int width) {
+    public void draw(Canvas canvas, Paint paint, int width, int height) {
         paint.setColor(Color.parseColor("#CD5C5C"));
         canvas.drawRect(posX, posY, posX + width, posY + GATE_HEIGHT, paint);
         paint.setColor(Color.parseColor("#FFFFFF"));
-        paint.setTextSize(30);
-        canvas.drawText(this.getGate(), posX + (GATE_HEIGHT / 4), posY + (GATE_HEIGHT / 2), paint);
+//        paint.setTextSize(30);
+//        canvas.drawText(this.getGate(), posX + (GATE_HEIGHT / 4), posY + (GATE_HEIGHT / 2), paint);
 
         paint.setStrokeWidth(4);
         if(leftGate != null) {
             canvas.drawLine(posX, posY + GATE_HEIGHT, leftGate.getPosX() + (width / 2), leftGate.getPosY(), paint);
         } else {
-            canvas.drawLine(posX, posY + GATE_HEIGHT, posX, 1000, paint);
+            canvas.drawLine(posX, posY + GATE_HEIGHT, posX, height, paint);
         }
 
         if(rightGate != null) {
             canvas.drawLine(posX + width, posY + GATE_HEIGHT, rightGate.getPosX() + (width / 2), rightGate.getPosY(), paint);
         } else {
-            canvas.drawLine(posX + width, posY + GATE_HEIGHT, posX + width, 1000, paint);
+            canvas.drawLine(posX + width, posY + GATE_HEIGHT, posX + width, height, paint);
         }
     }
 

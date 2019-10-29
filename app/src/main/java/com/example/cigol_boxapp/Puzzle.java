@@ -20,10 +20,13 @@ public class Puzzle {
     private int numGates;
     private int numInputs;
     private PuzzleGate puzzle;
-    List<PuzzleGate> gateOrder;
-    List<Pair<Integer, PuzzleGate>> inputOrder;
+    private List<PuzzleGate> gateOrder;
+    private List<Pair<Integer, PuzzleGate>> inputOrder;
     private int height;
+
+    private int canvasHeight;
     private int gridWidth;
+    private int levelHeight;
 
     private Canvas canvas;
     private Paint paint;
@@ -50,60 +53,52 @@ public class Puzzle {
         return n;
     }
 
+    /* ******************************************************************************* */
+    /*                                     DRAW                                        */
+    /* ******************************************************************************* */
+
     public Bitmap draw(int layoutHeight, int layoutWidth) {
         Bitmap bg = Bitmap.createBitmap(layoutWidth, layoutHeight, Bitmap.Config.ARGB_8888);
         this.canvas = new Canvas(bg);
+        this.canvasHeight = this.canvas.getHeight();
+        this.levelHeight = (this.canvasHeight - (this.height * GATE_HEIGHT)) / (this.height + 1);
         int width = this.canvas.getWidth();
-        int height = this.canvas.getHeight();
-
         this.gridWidth = width / this.numInputs;
+
+        Log.e("height of tree", this.height + "");
+        Log.e("height of canvas", this.canvasHeight + "");
+        Log.e("numGates", this.numGates + "");
+        Log.e("levelHeight", levelHeight + "");
+
         this.gateOrder = this.positionGates();
         this.inputOrder = this.buildInputList();
-        this.drawGrid(height, this.numInputs);
+        this.drawGrid(this.canvasHeight, this.numInputs);
         this.drawPuzzle();
 
         return bg;
     }
 
-    public void toggleInput(int num, boolean on) {
-        if(on) {
-            this.paint.setColor(Color.parseColor("#FF00FF"));
-        } else {
-            this.paint.setColor(Color.parseColor("#FFFFFF"));
-        }
-        paint.setStrokeWidth(4);
+    private void drawPuzzle() {
+        PuzzleGate current;
 
-        Pair<Integer, PuzzleGate> inputPair = this.inputOrder.get(num);
-        if(inputPair.first == -1) {
-            inputPair.second.toggle(this.canvas, this.paint);
-        } else {
-            inputPair.second.toggle(this.canvas, this.paint, this.gridWidth);
+        for(int i = 0; i < this.gateOrder.size(); i++) {
+            current = this.gateOrder.get(i);
+            current.draw(this.canvas, this.paint, this.gridWidth, this.canvasHeight);
         }
+
+        // draw the top output line
+        current = this.puzzle; // head of the tree
+        this.canvas.drawLine(current.getPosX() + (this.gridWidth / 2), current.getPosY(),
+                current.getPosX() + (this.gridWidth / 2), current.getPosY() - this.levelHeight, this.paint);
     }
 
-    public int probe() {
-        return probe(this.puzzle);
-    }
-
-    private int probe(PuzzleGate head) {
-        PuzzleGate left = head.getLeftGate();
-        PuzzleGate right = head.getRightGate();
-
-        int leftInput = 0;
-        if(left == null) {
-            leftInput = head.getLeftInput();
-        } else {
-            leftInput = probe(left);
+    private void drawGrid(int height, int numInputs) {
+        int x = this.gridWidth;
+        this.paint.setColor(Color.parseColor("#FFFFFF"));
+        for(int i = 0; i < numInputs; i++) {
+            this.canvas.drawLine(x, 0, x, height, this.paint);
+            x = x + this.gridWidth;
         }
-
-        int rightInput = 0;
-        if(right == null) {
-            rightInput = head.getRightInput();
-        } else {
-            rightInput = probe(right);
-        }
-
-        return head.getOutput(leftInput, rightInput);
     }
 
     private List<PuzzleGate> positionGates() {
@@ -119,47 +114,6 @@ public class Puzzle {
 
         return gateOrder;
     }
-
-    private List<Pair<Integer, PuzzleGate>> buildInputList() {
-        List<Pair<Integer, PuzzleGate>> inputList = new LinkedList<>();
-        PuzzleGate current;
-        Pair<Integer, PuzzleGate> pair;
-        for(int i = 0; i < this.gateOrder.size(); i++) {
-            current = this.gateOrder.get(i);
-            if(current.getLeftGate() == null) {
-                pair = new Pair(-1, current);
-                inputList.add(pair);
-            }
-            if(current.getRightGate() == null) {
-                pair = new Pair(1, current);
-                inputList.add(pair);
-            }
-        }
-        return inputList;
-    }
-
-    private void drawPuzzle() {
-        PuzzleGate current;
-
-        for(int i = 0; i < this.gateOrder.size(); i++) {
-            current = this.gateOrder.get(i);
-            current.draw(this.canvas, this.paint, this.gridWidth);
-        }
-
-        // draw the top output line
-        current = this.puzzle; // head of the tree
-        this.canvas.drawLine(current.getPosX() + (this.gridWidth / 2), current.getPosY(),current.getPosX() + (this.gridWidth / 2), current.getPosY() - 100, this.paint);
-    }
-
-    private void drawGrid(int height, int numInputs) {
-        int x = this.gridWidth;
-        this.paint.setColor(Color.parseColor("#FFFFFF"));
-        for(int i = 0; i < numInputs; i++) {
-            this.canvas.drawLine(x, 0, x, height, this.paint);
-            x = x + this.gridWidth;
-        }
-    }
-
     private void inorderTraversal(PuzzleGate head, List<PuzzleGate> order) {
         if(head == null) {
             return;
@@ -179,7 +133,7 @@ public class Puzzle {
         Queue<PuzzleGate> queue = new LinkedList<>();
         queue.add(this.puzzle);
 
-        int y = 150;
+        int y = this.levelHeight;
         int nodeCount = 0;
         while (!queue.isEmpty())
         {
@@ -203,10 +157,9 @@ public class Puzzle {
                 nodeCount--;
             }
 
-            y += 200; // only adjust y when on different level
+            y += this.levelHeight + GATE_HEIGHT; // only adjust y when on different level
         }
     }
-
 
     private int getHeight(PuzzleGate head) {
         if (head == null)
@@ -222,6 +175,89 @@ public class Puzzle {
             else return(rDepth + 1);
         }
     }
+
+    /* ******************************************************************************* */
+    /*                                    INPUT                                        */
+    /* ******************************************************************************* */
+
+    public void toggleInput(int num, boolean on) {
+        if(on) {
+            this.paint.setColor(Color.parseColor("#FF00FF"));
+        } else {
+            this.paint.setColor(Color.parseColor("#FFFFFF"));
+        }
+        paint.setStrokeWidth(4);
+
+        Pair<Integer, PuzzleGate> inputPair = this.inputOrder.get(num);
+        if(inputPair.first == -1) {
+            inputPair.second.toggle(this.canvas, this.paint);
+        } else {
+            inputPair.second.toggle(this.canvas, this.paint, this.gridWidth);
+        }
+    }
+
+    private List<Pair<Integer, PuzzleGate>> buildInputList() {
+        List<Pair<Integer, PuzzleGate>> inputList = new LinkedList<>();
+        PuzzleGate current;
+        Pair<Integer, PuzzleGate> pair;
+        for(int i = 0; i < this.gateOrder.size(); i++) {
+            current = this.gateOrder.get(i);
+            if(current.getLeftGate() == null) {
+                pair = new Pair(-1, current);
+                inputList.add(pair);
+            }
+            if(current.getRightGate() == null) {
+                pair = new Pair(1, current);
+                inputList.add(pair);
+            }
+        }
+        return inputList;
+    }
+
+
+    /* ******************************************************************************* */
+    /*                                     PROBE                                       */
+    /* ******************************************************************************* */
+
+    public int probe() {
+        int result = probe(this.puzzle);
+        if(result == 1) {
+            this.paint.setColor(Color.parseColor("#FF00FF"));
+        } else {
+            this.paint.setColor(Color.parseColor("#FFFFFF"));
+        }
+        paint.setStrokeWidth(4);
+        PuzzleGate head = this.puzzle; // head of the tree
+        this.canvas.drawLine(head.getPosX() + (this.gridWidth / 2), head.getPosY(),
+                head.getPosX() + (this.gridWidth / 2), head.getPosY() - 100, this.paint);
+        return result;
+    }
+
+    private int probe(PuzzleGate head) {
+        PuzzleGate left = head.getLeftGate();
+        PuzzleGate right = head.getRightGate();
+
+        int leftInput = 0;
+        if(left == null) {
+            leftInput = head.getLeftInput();
+        } else {
+            leftInput = probe(left);
+        }
+
+        int rightInput = 0;
+        if(right == null) {
+            rightInput = head.getRightInput();
+        } else {
+            rightInput = probe(right);
+        }
+
+        return head.getOutput(leftInput, rightInput);
+    }
+
+
+    /* ******************************************************************************* */
+    /*                                     STRING                                      */
+    /* ******************************************************************************* */
 
     private StringBuilder toString(PuzzleGate head, StringBuilder prefix, boolean isTail, StringBuilder sb) {
         PuzzleGate rightGate = head.getRightGate();
