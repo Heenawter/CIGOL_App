@@ -4,4 +4,10 @@
     <string name="title_solve">Solve</string>
     <string name="title_reference">Reference</string>
     <string name="hello_world">Hello, World!</string>
+
+    <string-array name="gate_array">
+        <item>AND</item>
+        <item>OR</item>
+        <item>XOR</item>
+    </string-array>
 </resources>

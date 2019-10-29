@@ -8,12 +8,16 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.Switch;
 
 public class MainActivity extends AppCompatActivity {
@@ -21,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView navigation;
     private LinearLayout paintLayout;
     private LinearLayout switchContainer;
+    private ScrollView scrollContainer;
     private Button probeButton;
 
     private int layoutWidth = 0;
@@ -28,19 +33,24 @@ public class MainActivity extends AppCompatActivity {
     private Puzzle puzzle;
     private int numGates;
 
+    private static final int MODE_PROBE = 0;
+    private static final int MODE_SOLVE = 1;
+    private int mode;
+
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_probe:
-                    setTitle("CIGOL - Probe");
+                    buildProbeMode();
                     return true;
                 case R.id.navigation_solve:
-                    setTitle("CIGOL - Solve");
+                    buildSolveMode();
                     return true;
                 case R.id.navigation_reference:
                     setTitle("CIGOL - Reference");
+                    probeButton.setText(R.string.title_reference);
                     return true;
             }
             return false;
@@ -70,11 +80,15 @@ public class MainActivity extends AppCompatActivity {
             = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
-            layoutWidth  = paintLayout.getMeasuredWidth();
-            layoutHeight = paintLayout.getMeasuredHeight();
+            layoutWidth  = scrollContainer.getMeasuredWidth();
+            layoutHeight = scrollContainer.getMeasuredHeight();
+            Log.d("layoutWidth", layoutWidth + "");
+            Log.d("layoutHeight", layoutHeight + "");
+
             paintLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
             // draw only once width and height are established
+            buildProbeMode();
             draw();
         }
     };
@@ -99,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
         navigation = findViewById(R.id.navigation);
         paintLayout = findViewById(R.id.rect);
         switchContainer = findViewById(R.id.toggle_bits_container);
+        scrollContainer = findViewById(R.id.scroll_outer);
         probeButton = findViewById(R.id.submit_button);
     }
 
@@ -106,19 +121,54 @@ public class MainActivity extends AppCompatActivity {
         Bitmap bg = this.puzzle.draw(this.layoutHeight, this.layoutWidth);
 
         paintLayout.setBackground(new BitmapDrawable(getApplicationContext().getResources(), bg));
+    }
 
-        Switch test;
+    private void buildProbeMode() {
+        this.mode = MODE_PROBE;
 
+        setTitle("CIGOL - Probe");
+        probeButton.setText(R.string.title_probe);
+        switchContainer.removeAllViews();
+
+        Switch newSwitch;
 //        int buttonStyle = R.style.SwitchCompatTheme;
         int width = this.layoutWidth / (this.numGates + 1);
         for(int i = 0; i < this.numGates + 1; i++) {
 //            test = new Switch(new ContextThemeWrapper(this, buttonStyle));
-            test = new Switch(this);
-            test.setId(i);
-            test.setSwitchMinWidth(width - 10);
-            test.setPadding(10, 0, 0, 0);
-            test.setOnCheckedChangeListener(mOnSwitchSelectedListener);
-            switchContainer.addView(test);
+            newSwitch = new Switch(this);
+            newSwitch.setId(i);
+            newSwitch.setSwitchMinWidth(width - 10);
+            newSwitch.setPadding(10, 0, 0, 0);
+            newSwitch.setOnCheckedChangeListener(mOnSwitchSelectedListener);
+            switchContainer.addView(newSwitch);
+        }
+    }
+
+    private void buildSolveMode() {
+        this.mode = MODE_SOLVE;
+
+        setTitle("CIGOL - Solve");
+        probeButton.setText(R.string.title_solve);
+        switchContainer.removeAllViews();
+
+        int width = (int)(this.layoutWidth * ((double)(this.numGates - 2) / this.numGates)) / this.numGates;
+        int padding = ((int)(this.layoutWidth * (2.0 / this.numGates)) / this.numGates) / 2;
+        Log.e("width", width + "");
+        Log.e("padding", padding + "");
+        Spinner newButton;
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.gate_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        for(int i = 0; i < this.numGates; i++) {
+            newButton = new Spinner(this);
+            newButton.setAdapter(adapter);
+            newButton.setId(i);
+
+
+//            newButton.setDropDownWidth(width);
+//            newButton.setPadding(padding,0, padding, 0);
+            switchContainer.addView(newButton);
         }
     }
 }

@@ -3,15 +3,13 @@ package com.example.cigol_boxapp;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
-import android.util.Pair;
 
 import java.util.Random;
 
 public class PuzzleGate {
-    static final short AND = 0;
-    static final short OR = 1;
-    static final short XOR = 2;
+    private static final short AND = 0;
+    private static final short OR = 1;
+    private static final short XOR = 2;
 
     private int gate;
     private PuzzleGate leftGate;
@@ -22,9 +20,9 @@ public class PuzzleGate {
     private int posX;
     private int posY;
 
-    static final int GATE_HEIGHT = 100;
+    private static final int GATE_HEIGHT = 125;
 
-    public PuzzleGate() {
+    PuzzleGate() {
         this.gate = (short)(new Random().nextInt(XOR + 1));
         this.leftGate = null;
         this.rightGate = null;
@@ -36,7 +34,8 @@ public class PuzzleGate {
         this.posY = 0;
     }
 
-    public int getOutput(int leftInput, int rightInput) {
+    @SuppressWarnings("WeakerAccess")
+    protected int getOutput(int leftInput, int rightInput) {
         int output = -1;
         if(this.gate == AND) {
             output = leftInput & rightInput;
@@ -48,7 +47,7 @@ public class PuzzleGate {
         return output;
     }
 
-    public void draw(Canvas canvas, Paint paint, int width, int height) {
+    protected void draw(Canvas canvas, Paint paint, int width, int height) {
         paint.setColor(Color.parseColor("#CD5C5C"));
         canvas.drawRect(posX, posY, posX + width, posY + GATE_HEIGHT, paint);
         paint.setColor(Color.parseColor("#FFFFFF"));
@@ -69,7 +68,7 @@ public class PuzzleGate {
         }
     }
 
-    public String getGate() {
+    protected String getGate() {
         String gate = "";
         if(this.gate == AND) {
             gate = "AND";
@@ -81,50 +80,40 @@ public class PuzzleGate {
         return gate;
     }
 
-    public void setXPosition(int x) {
+    protected void setXPosition(int x) {
         this.posX = x;
     }
 
-    public void setYPosition(int y) {
+    protected void setYPosition(int y) {
         this.posY = y;
     }
 
-    public void addLeftGate(PuzzleGate gate) { this.leftGate = gate; }
+    protected void addLeftGate(PuzzleGate gate) { this.leftGate = gate; }
 
-    public void addRightGate(PuzzleGate gate) { this.rightGate = gate; }
+    protected void addRightGate(PuzzleGate gate) { this.rightGate = gate; }
 
-    public int getPosX() { return this.posX; }
+    protected int getPosX() { return this.posX; }
 
-    public int getPosY() { return this.posY; }
+    protected int getPosY() { return this.posY; }
 
-    public PuzzleGate getLeftGate() {
+    protected PuzzleGate getLeftGate() {
         return this.leftGate;
     }
 
-    public PuzzleGate getRightGate() { return this.rightGate; }
+    protected PuzzleGate getRightGate() { return this.rightGate; }
 
-    public int getLeftInput() { return this.leftInput; }
+    protected int getLeftInput() { return this.leftInput; }
 
-    public int getRightInput() { return this.rightInput; }
+    protected int getRightInput() { return this.rightInput; }
 
-
-    public int getInputCount() {
-        int num = 0;
-        if(leftGate == null)
-            num++;
-        if(rightGate == null)
-            num++;
-        return num;
-    }
-
-    public void toggle(Canvas canvas, Paint paint) {
+    protected void toggle(Canvas canvas, Paint paint, int height) {
         this.leftInput = this.leftInput ^ 1;
-        canvas.drawLine(posX, posY, posX, 1000, paint);
+        canvas.drawLine(posX, posY + GATE_HEIGHT, posX, height, paint);
     }
 
-    public void toggle(Canvas canvas, Paint paint, int width) {
+    protected void toggle(Canvas canvas, Paint paint, int height, int width) {
         this.rightInput = this.rightInput ^ 1;
-        canvas.drawLine(posX + width, posY, posX + width, 1000, paint);
+        canvas.drawLine(posX + width, posY + GATE_HEIGHT, posX + width, height, paint);
     }
 }
 

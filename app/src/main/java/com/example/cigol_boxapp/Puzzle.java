@@ -14,8 +14,7 @@ import android.util.Log;
 import android.util.Pair;
 
 public class Puzzle {
-    static final int GATE_WIDTH = 100;
-    static final int GATE_HEIGHT = 100;
+    private static final int GATE_HEIGHT = 125;
 
     private int numGates;
     private int numInputs;
@@ -31,7 +30,7 @@ public class Puzzle {
     private Canvas canvas;
     private Paint paint;
 
-    public Puzzle(int numGates) {
+    protected Puzzle(int numGates) {
         this.numGates = numGates;
         this.numInputs = numGates + 1;
         this.puzzle = Build(numGates);
@@ -57,8 +56,8 @@ public class Puzzle {
     /*                                     DRAW                                        */
     /* ******************************************************************************* */
 
-    public Bitmap draw(int layoutHeight, int layoutWidth) {
-        Bitmap bg = Bitmap.createBitmap(layoutWidth, layoutHeight, Bitmap.Config.ARGB_8888);
+    protected Bitmap draw(int layoutHeight, int layoutWidth) {
+        Bitmap bg = Bitmap.createBitmap(layoutWidth, layoutHeight - 100, Bitmap.Config.ARGB_8888);
         this.canvas = new Canvas(bg);
         this.canvasHeight = this.canvas.getHeight();
         this.levelHeight = (this.canvasHeight - (this.height * GATE_HEIGHT)) / (this.height + 1);
@@ -72,11 +71,13 @@ public class Puzzle {
 
         this.gateOrder = this.positionGates();
         this.inputOrder = this.buildInputList();
-        this.drawGrid(this.canvasHeight, this.numInputs);
+//        this.drawGrid(this.canvasHeight, this.numInputs);
         this.drawPuzzle();
 
         return bg;
     }
+
+
 
     private void drawPuzzle() {
         PuzzleGate current;
@@ -114,6 +115,7 @@ public class Puzzle {
 
         return gateOrder;
     }
+
     private void inorderTraversal(PuzzleGate head, List<PuzzleGate> order) {
         if(head == null) {
             return;
@@ -134,27 +136,29 @@ public class Puzzle {
         queue.add(this.puzzle);
 
         int y = this.levelHeight;
-        int nodeCount = 0;
+        int nodeCount;
         while (!queue.isEmpty())
         {
             nodeCount = queue.size();
 
             while(nodeCount > 0) {
                 PuzzleGate tempNode = queue.poll();
-                tempNode.setYPosition(y);
+                if(tempNode != null) {
+                    tempNode.setYPosition(y);
 
-                /*Enqueue left child */
-                PuzzleGate left = tempNode.getLeftGate();
-                if (left != null) {
-                    queue.add(left);
-                }
+                    /*Enqueue left child */
+                    PuzzleGate left = tempNode.getLeftGate();
+                    if (left != null) {
+                        queue.add(left);
+                    }
 
-                /*Enqueue right child */
-                PuzzleGate right = tempNode.getRightGate();
-                if (right != null) {
-                    queue.add(right);
+                    /*Enqueue right child */
+                    PuzzleGate right = tempNode.getRightGate();
+                    if (right != null) {
+                        queue.add(right);
+                    }
+                    nodeCount--;
                 }
-                nodeCount--;
             }
 
             y += this.levelHeight + GATE_HEIGHT; // only adjust y when on different level
@@ -180,7 +184,7 @@ public class Puzzle {
     /*                                    INPUT                                        */
     /* ******************************************************************************* */
 
-    public void toggleInput(int num, boolean on) {
+    protected void toggleInput(int num, boolean on) {
         if(on) {
             this.paint.setColor(Color.parseColor("#FF00FF"));
         } else {
@@ -190,9 +194,9 @@ public class Puzzle {
 
         Pair<Integer, PuzzleGate> inputPair = this.inputOrder.get(num);
         if(inputPair.first == -1) {
-            inputPair.second.toggle(this.canvas, this.paint);
+            inputPair.second.toggle(this.canvas, this.paint, this.canvasHeight);
         } else {
-            inputPair.second.toggle(this.canvas, this.paint, this.gridWidth);
+            inputPair.second.toggle(this.canvas, this.paint, this.canvasHeight, this.gridWidth);
         }
     }
 
@@ -203,11 +207,11 @@ public class Puzzle {
         for(int i = 0; i < this.gateOrder.size(); i++) {
             current = this.gateOrder.get(i);
             if(current.getLeftGate() == null) {
-                pair = new Pair(-1, current);
+                pair = new Pair<>(-1, current);
                 inputList.add(pair);
             }
             if(current.getRightGate() == null) {
-                pair = new Pair(1, current);
+                pair = new Pair<>(1, current);
                 inputList.add(pair);
             }
         }
@@ -219,7 +223,7 @@ public class Puzzle {
     /*                                     PROBE                                       */
     /* ******************************************************************************* */
 
-    public int probe() {
+    protected int probe() {
         int result = probe(this.puzzle);
         if(result == 1) {
             this.paint.setColor(Color.parseColor("#FF00FF"));
@@ -229,7 +233,7 @@ public class Puzzle {
         paint.setStrokeWidth(4);
         PuzzleGate head = this.puzzle; // head of the tree
         this.canvas.drawLine(head.getPosX() + (this.gridWidth / 2), head.getPosY(),
-                head.getPosX() + (this.gridWidth / 2), head.getPosY() - 100, this.paint);
+                head.getPosX() + (this.gridWidth / 2), 0, this.paint);
         return result;
     }
 
@@ -237,14 +241,14 @@ public class Puzzle {
         PuzzleGate left = head.getLeftGate();
         PuzzleGate right = head.getRightGate();
 
-        int leftInput = 0;
+        int leftInput;
         if(left == null) {
             leftInput = head.getLeftInput();
         } else {
             leftInput = probe(left);
         }
 
-        int rightInput = 0;
+        int rightInput;
         if(right == null) {
             rightInput = head.getRightInput();
         } else {
@@ -267,7 +271,7 @@ public class Puzzle {
         sb.append(prefix).append(isTail ? "└── " : "┌── ").append(head.getGate()).append("\n");
 
         PuzzleGate leftGate  = head.getLeftGate();
-        if(leftGate !=null) {
+        if(leftGate != null) {
             this.toString(leftGate, new StringBuilder().append(prefix).append(isTail ? "    " : "│   "), true, sb);
         }
         return sb;
