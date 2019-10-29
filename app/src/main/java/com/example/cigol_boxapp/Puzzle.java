@@ -89,15 +89,21 @@ public class Puzzle {
         PuzzleGate left = head.getLeftGate();
         PuzzleGate right = head.getRightGate();
 
+        int leftInput = 0;
         if(left == null) {
-            return head.getLeftInput();
+            leftInput = head.getLeftInput();
+        } else {
+            leftInput = probe(left);
         }
 
+        int rightInput = 0;
         if(right == null) {
-            return head.getRightInput();
+            rightInput = head.getRightInput();
+        } else {
+            rightInput = probe(right);
         }
 
-        return head.getOutput(probe(left), probe(right));
+        return head.getOutput(leftInput, rightInput);
     }
 
     private List<PuzzleGate> positionGates() {
@@ -134,11 +140,15 @@ public class Puzzle {
 
     private void drawPuzzle() {
         PuzzleGate current;
-        boolean requiresUserInput;
+
         for(int i = 0; i < this.gateOrder.size(); i++) {
             current = this.gateOrder.get(i);
             current.draw(this.canvas, this.paint, this.gridWidth);
         }
+
+        // draw the top output line
+        current = this.puzzle; // head of the tree
+        this.canvas.drawLine(current.getPosX() + (this.gridWidth / 2), current.getPosY(),current.getPosX() + (this.gridWidth / 2), current.getPosY() - 100, this.paint);
     }
 
     private void drawGrid(int height, int numInputs) {
@@ -169,7 +179,7 @@ public class Puzzle {
         Queue<PuzzleGate> queue = new LinkedList<>();
         queue.add(this.puzzle);
 
-        int y = 50;
+        int y = 150;
         int nodeCount = 0;
         while (!queue.isEmpty())
         {
