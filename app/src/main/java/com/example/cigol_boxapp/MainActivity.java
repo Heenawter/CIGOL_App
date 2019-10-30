@@ -2,9 +2,12 @@ package com.example.cigol_boxapp;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -15,18 +18,24 @@ import android.widget.LinearLayout;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView navigation;
     private LinearLayout paintLayout;
     private LinearLayout switchContainer;
+    private ConstraintLayout gateContainer;
     private ScrollView scrollContainer;
     private Button probeButton;
+
+    private List<Spinner> spinnerList;
 
     private int layoutWidth = 0;
     private int layoutHeight = 0;
@@ -43,10 +52,10 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_probe:
-                    buildProbeMode();
+                    changeToProbeMode();
                     return true;
                 case R.id.navigation_solve:
-                    buildSolveMode();
+                    changeToSolveMode();
                     return true;
                 case R.id.navigation_reference:
                     setTitle("CIGOL - Reference");
@@ -88,8 +97,11 @@ public class MainActivity extends AppCompatActivity {
             paintLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
             // draw only once width and height are established
-            buildProbeMode();
             draw();
+            buildProbeMode();
+            buildSolveMode();
+
+            changeToProbeMode();
         }
     };
 
@@ -100,8 +112,10 @@ public class MainActivity extends AppCompatActivity {
         setTitle("CIGOL - Probe");
 
         bindViews();
-        this.numGates = 5;
+        this.numGates = 4;
         this.puzzle = new Puzzle(this.numGates);
+        this.spinnerList = new ArrayList<>();
+
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         probeButton.setOnClickListener(mOnButtonClickedListener);
 
@@ -114,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
         paintLayout = findViewById(R.id.rect);
         switchContainer = findViewById(R.id.toggle_bits_container);
         scrollContainer = findViewById(R.id.scroll_outer);
+        gateContainer = findViewById(R.id.gate_container);
         probeButton = findViewById(R.id.submit_button);
     }
 
@@ -123,13 +138,16 @@ public class MainActivity extends AppCompatActivity {
         paintLayout.setBackground(new BitmapDrawable(getApplicationContext().getResources(), bg));
     }
 
-    private void buildProbeMode() {
+    private void changeToProbeMode() {
         this.mode = MODE_PROBE;
-
         setTitle("CIGOL - Probe");
         probeButton.setText(R.string.title_probe);
-        switchContainer.removeAllViews();
 
+        switchContainer.setVisibility(View.VISIBLE);
+        gateContainer.setVisibility(View.INVISIBLE);
+    }
+
+    private void buildProbeMode() {
         Switch newSwitch;
 //        int buttonStyle = R.style.SwitchCompatTheme;
         int width = this.layoutWidth / (this.numGates + 1);
@@ -144,31 +162,45 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void buildSolveMode() {
+    private void changeToSolveMode() {
         this.mode = MODE_SOLVE;
-
         setTitle("CIGOL - Solve");
         probeButton.setText(R.string.title_solve);
-        switchContainer.removeAllViews();
 
-        int width = (int)(this.layoutWidth * ((double)(this.numGates - 2) / this.numGates)) / this.numGates;
-        int padding = ((int)(this.layoutWidth * (2.0 / this.numGates)) / this.numGates) / 2;
-        Log.e("width", width + "");
-        Log.e("padding", padding + "");
+        switchContainer.setVisibility(View.INVISIBLE);
+        gateContainer.setVisibility(View.VISIBLE);
+    }
+
+    private void buildSolveMode() {
+        int width = this.layoutWidth / numGates;
         Spinner newButton;
+
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.gate_array, android.R.layout.simple_spinner_item);
+                R.array.gate_array, android.R.layout.simple_spinner_dropdown_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
+        List<Spinner> spinnerList = new ArrayList<>();
         for(int i = 0; i < this.numGates; i++) {
             newButton = new Spinner(this);
             newButton.setAdapter(adapter);
             newButton.setId(i);
 
-
-//            newButton.setDropDownWidth(width);
-//            newButton.setPadding(padding,0, padding, 0);
-            switchContainer.addView(newButton);
+            gateContainer.addView(newButton);
+            spinnerList.add(newButton);
+            newButton.setDropDownWidth(width);
         }
+
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.clone(gateContainer);
+        PuzzleGate gate;
+        for(int i = 0; i < this.numGates; i++) {
+            gate = this.puzzle.getGate(i);
+
+            newButton = spinnerList.get(i);
+            constraintSet.connect(newButton.getId(), ConstraintSet.TOP, gateContainer.getId(), ConstraintSet.TOP, gate.getPosY());
+            constraintSet.connect(newButton.getId(), ConstraintSet.LEFT, gateContainer.getId(), ConstraintSet.LEFT, gate.getPosX());
+        }
+
+        constraintSet.applyTo(gateContainer);
     }
 }

@@ -14,19 +14,25 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/scroll_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:id="@+id/rect"
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/gate_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-            </LinearLayout>
-        </LinearLayout>
+                android:layout_height="match_parent"
+                android:elevation="2dp" />
+
+                <LinearLayout
+                    android:id="@+id/rect"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:elevation="0dp"></LinearLayout>
+        </FrameLayout>
     </ScrollView>
 
     <LinearLayout
