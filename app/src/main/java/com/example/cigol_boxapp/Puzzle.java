@@ -6,15 +6,18 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Random;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.Log;
 import android.util.Pair;
+import android.widget.Spinner;
 
 public class Puzzle {
-    private static final int GATE_HEIGHT = 125;
+    private Resources resources;
 
     private int numGates;
     private int numInputs;
@@ -30,7 +33,8 @@ public class Puzzle {
     private Canvas canvas;
     private Paint paint;
 
-    protected Puzzle(int numGates) {
+    protected Puzzle(Context context, int numGates) {
+        this.resources = context.getResources();
         this.numGates = numGates;
         this.numInputs = numGates + 1;
         this.puzzle = Build(numGates);
@@ -43,7 +47,7 @@ public class Puzzle {
     private PuzzleGate Build(int size) {
         PuzzleGate n = null;
         if (size > 0) {
-            n = new PuzzleGate();
+            n = new PuzzleGate(this.resources);
             size--;
             int leftSize = new Random().nextInt(size + 1);
             n.addLeftGate(Build(leftSize));
@@ -52,9 +56,6 @@ public class Puzzle {
         return n;
     }
 
-    public PuzzleGate getGate(int i) {
-        return gateOrder.get(i);
-    }
     /* ******************************************************************************* */
     /*                                     DRAW                                        */
     /* ******************************************************************************* */
@@ -63,7 +64,7 @@ public class Puzzle {
         Bitmap bg = Bitmap.createBitmap(layoutWidth, layoutHeight - 100, Bitmap.Config.ARGB_8888);
         this.canvas = new Canvas(bg);
         this.canvasHeight = this.canvas.getHeight();
-        this.levelHeight = (this.canvasHeight - (this.height * GATE_HEIGHT)) / (this.height + 1);
+        this.levelHeight = (this.canvasHeight - (this.height * resources.getInteger(R.integer.gate_height))) / (this.height + 1);
         int width = this.canvas.getWidth();
         this.gridWidth = width / this.numInputs;
 
@@ -164,7 +165,7 @@ public class Puzzle {
                 }
             }
 
-            y += this.levelHeight + GATE_HEIGHT; // only adjust y when on different level
+            y += this.levelHeight + resources.getInteger(R.integer.gate_height); // only adjust y when on different level
         }
     }
 
@@ -261,9 +262,26 @@ public class Puzzle {
         return head.getOutput(leftInput, rightInput);
     }
 
+    /* ******************************************************************************* */
+    /*                                    SOLVE                                        */
+    /* ******************************************************************************* */
+
+    protected boolean solve(List<Spinner> guesses) {
+        boolean success = true;
+
+        int guess;
+        for(int i = 0; i < this.numGates && success; i++) {
+            guess = (int)guesses.get(i).getSelectedItemId();
+            success = this.gateOrder.get(i).isEqual(guess);
+            Log.d("gate", guesses.get(i).getSelectedItemId() + "");
+        }
+
+        return success;
+    }
+
 
     /* ******************************************************************************* */
-    /*                                     STRING                                      */
+    /*                                HELPER FUNCTIONS                                 */
     /* ******************************************************************************* */
 
     private StringBuilder toString(PuzzleGate head, StringBuilder prefix, boolean isTail, StringBuilder sb) {
@@ -285,4 +303,8 @@ public class Puzzle {
         return this.toString(this.puzzle, new StringBuilder(), true, new StringBuilder()).toString();
     }
 
+
+    public PuzzleGate getGate(int i) {
+        return gateOrder.get(i);
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.cigol_boxapp;
 
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -7,9 +8,7 @@ import android.graphics.Paint;
 import java.util.Random;
 
 public class PuzzleGate {
-    private static final short AND = 0;
-    private static final short OR = 1;
-    private static final short XOR = 2;
+    private Resources resources;
 
     private int gate;
     private PuzzleGate leftGate;
@@ -20,10 +19,9 @@ public class PuzzleGate {
     private int posX;
     private int posY;
 
-    private static final int GATE_HEIGHT = 125;
-
-    PuzzleGate() {
-        this.gate = (short)(new Random().nextInt(XOR + 1));
+    PuzzleGate(Resources resources) {
+        this.resources = resources;
+        this.gate = (short)(new Random().nextInt(resources.getInteger(R.integer.last_type) + 1));
         this.leftGate = null;
         this.rightGate = null;
 
@@ -37,11 +35,11 @@ public class PuzzleGate {
     @SuppressWarnings("WeakerAccess")
     protected int getOutput(int leftInput, int rightInput) {
         int output = -1;
-        if(this.gate == AND) {
+        if(this.gate == resources.getInteger(R.integer.and_type)) {
             output = leftInput & rightInput;
-        } else if (this.gate == OR) {
+        } else if (this.gate == resources.getInteger(R.integer.or_type)) {
             output = leftInput | rightInput;
-        } else if (this.gate == XOR) {
+        } else if (this.gate == resources.getInteger(R.integer.xor_type)) {
             output = leftInput ^ rightInput;
         }
         return output;
@@ -49,35 +47,39 @@ public class PuzzleGate {
 
     protected void draw(Canvas canvas, Paint paint, int width, int height) {
         paint.setColor(Color.parseColor("#CD5C5C"));
-        canvas.drawRect(posX, posY, posX + width, posY + GATE_HEIGHT, paint);
+        canvas.drawRect(posX, posY, posX + width, posY + resources.getInteger(R.integer.gate_height), paint);
         paint.setColor(Color.parseColor("#FFFFFF"));
 //        paint.setTextSize(30);
 //        canvas.drawText(this.getGate(), posX + (GATE_HEIGHT / 4), posY + (GATE_HEIGHT / 2), paint);
 
         paint.setStrokeWidth(4);
         if(leftGate != null) {
-            canvas.drawLine(posX, posY + GATE_HEIGHT, leftGate.getPosX() + (width / 2), leftGate.getPosY(), paint);
+            canvas.drawLine(posX, posY + resources.getInteger(R.integer.gate_height), leftGate.getPosX() + (width / 2), leftGate.getPosY(), paint);
         } else {
-            canvas.drawLine(posX, posY + GATE_HEIGHT, posX, height, paint);
+            canvas.drawLine(posX, posY + resources.getInteger(R.integer.gate_height), posX, height, paint);
         }
 
         if(rightGate != null) {
-            canvas.drawLine(posX + width, posY + GATE_HEIGHT, rightGate.getPosX() + (width / 2), rightGate.getPosY(), paint);
+            canvas.drawLine(posX + width, posY + resources.getInteger(R.integer.gate_height), rightGate.getPosX() + (width / 2), rightGate.getPosY(), paint);
         } else {
-            canvas.drawLine(posX + width, posY + GATE_HEIGHT, posX + width, height, paint);
+            canvas.drawLine(posX + width, posY + resources.getInteger(R.integer.gate_height), posX + width, height, paint);
         }
     }
 
     protected String getGate() {
         String gate = "";
-        if(this.gate == AND) {
+        if(this.gate == resources.getInteger(R.integer.and_type)) {
             gate = "AND";
-        } else if (this.gate == OR) {
+        } else if (this.gate == resources.getInteger(R.integer.or_type)) {
             gate = "OR";
-        } else if (this.gate == XOR) {
+        } else if (this.gate == resources.getInteger(R.integer.xor_type)) {
             gate = "XOR";
         }
         return gate;
+    }
+
+    protected boolean isEqual(int otherGate) {
+        return otherGate == this.gate;
     }
 
     protected void setXPosition(int x) {
@@ -108,12 +110,12 @@ public class PuzzleGate {
 
     protected void toggle(Canvas canvas, Paint paint, int height) {
         this.leftInput = this.leftInput ^ 1;
-        canvas.drawLine(posX, posY + GATE_HEIGHT, posX, height, paint);
+        canvas.drawLine(posX, posY + resources.getInteger(R.integer.gate_height), posX, height, paint);
     }
 
     protected void toggle(Canvas canvas, Paint paint, int height, int width) {
         this.rightInput = this.rightInput ^ 1;
-        canvas.drawLine(posX + width, posY + GATE_HEIGHT, posX + width, height, paint);
+        canvas.drawLine(posX + width, posY + resources.getInteger(R.integer.gate_height), posX + width, height, paint);
     }
 }
 

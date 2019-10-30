@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="gate_height">125</integer>
+
+    <integer name="and_type">0</integer>
+    <integer name="or_type">1</integer>
+    <integer name="xor_type">2</integer>
+    <integer name="last_type">@integer/xor_type</integer>
+</resources>

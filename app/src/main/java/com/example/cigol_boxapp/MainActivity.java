@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             // the isChecked will be true if the switch is in the On position
-            Log.e("id of switch", "" + buttonView.getId());
+            Log.d("id of switch", "" + buttonView.getId());
             puzzle.toggleInput(buttonView.getId(), isChecked);
         }
     };
@@ -80,8 +80,13 @@ public class MainActivity extends AppCompatActivity {
             = new CompoundButton.OnClickListener() {
         @Override
         public void onClick(View v) {
-            int value = puzzle.probe();
-            Log.e("value", "" + value);
+            if(mode == MODE_PROBE) {
+                int value = puzzle.probe();
+                Log.d("probe result", "" + value);
+            } else if (mode == MODE_SOLVE) {
+                boolean result = puzzle.solve(spinnerList);
+                Log.d("solve result", result + "");
+            }
         }
     };
 
@@ -109,11 +114,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setTitle("CIGOL - Probe");
 
         bindViews();
         this.numGates = 4;
-        this.puzzle = new Puzzle(this.numGates);
+        this.puzzle = new Puzzle(this, this.numGates);
         this.spinnerList = new ArrayList<>();
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -178,15 +182,13 @@ public class MainActivity extends AppCompatActivity {
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.gate_array, android.R.layout.simple_spinner_dropdown_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        List<Spinner> spinnerList = new ArrayList<>();
         for(int i = 0; i < this.numGates; i++) {
             newButton = new Spinner(this);
             newButton.setAdapter(adapter);
             newButton.setId(i);
 
             gateContainer.addView(newButton);
-            spinnerList.add(newButton);
+            this.spinnerList.add(newButton);
             newButton.setDropDownWidth(width);
         }
 
@@ -196,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
         for(int i = 0; i < this.numGates; i++) {
             gate = this.puzzle.getGate(i);
 
-            newButton = spinnerList.get(i);
+            newButton = this.spinnerList.get(i);
             constraintSet.connect(newButton.getId(), ConstraintSet.TOP, gateContainer.getId(), ConstraintSet.TOP, gate.getPosY());
             constraintSet.connect(newButton.getId(), ConstraintSet.LEFT, gateContainer.getId(), ConstraintSet.LEFT, gate.getPosX());
         }

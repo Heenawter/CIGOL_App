@@ -6,8 +6,8 @@
     <string name="hello_world">Hello, World!</string>
 
     <string-array name="gate_array">
-        <item>AND</item>
-        <item>OR</item>
-        <item>XOR</item>
+        <item id="@constants/and_type">AND</item>
+        <item id="@constants/or_type">OR</item>
+        <item id="@constants/xor_type">XOR</item>
     </string-array>
 </resources>
