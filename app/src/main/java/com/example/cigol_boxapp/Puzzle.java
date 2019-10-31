@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.util.Pair;
 import android.widget.Spinner;
@@ -273,7 +274,6 @@ public class Puzzle {
         for(int i = 0; i < this.numGates && success; i++) {
             guess = (int)guesses.get(i).getSelectedItemId();
             success = this.gateOrder.get(i).isEqual(guess);
-            Log.d("gate", guesses.get(i).getSelectedItemId() + "");
         }
 
         return success;

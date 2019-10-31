@@ -1,5 +1,7 @@
 package com.example.cigol_boxapp;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -7,7 +9,6 @@ import android.support.constraint.ConstraintSet;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -21,7 +22,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Switch;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,6 +86,11 @@ public class MainActivity extends AppCompatActivity {
             } else if (mode == MODE_SOLVE) {
                 boolean result = puzzle.solve(spinnerList);
                 Log.d("solve result", result + "");
+
+                if(result) {
+                    Intent intent = new Intent(v.getContext(), EndActivity.class);
+                    startActivity(intent);
+                }
             }
         }
     };
